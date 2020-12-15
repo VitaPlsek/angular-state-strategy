@@ -1,0 +1,23 @@
+<app-tabset>
+
+  <app-tab #selectedTab>
+    Bacon ipsum swine ham ground round frankfurter prosciutto meatball tail chuck t-bone meatloaf ham porchetta
+    ribeye tail boudin ground round beef ribs rump andouille tongue chuck prosciutto ground round strip steak
+    pancetta bacon ground round short ribs t-bone pork loin ground round tri-tip beef shoulder flank tri-tip
+    landjaeger cow landjaeger tongue landjaeger beef shank drumstick salami brisket bresaola turducken jerky.
+  </app-tab>
+
+  <app-tab [header]="dynamicTab.header" *ngFor="let dynamicTab of dynamicTabs">
+
+    {{dynamicTab.text}}
+
+    <nav class="level button-box">
+      <p class="level-item has-text-centered">
+        <a class="button is-danger" (click)="removeTab(dynamicTab)">Remove tab</a>
+      </p>
+    </nav>
+  </app-tab>
+</app-tabset>
+
+<a class="button is-info" (click)="addTab()">Add dynamic tab</a>
+

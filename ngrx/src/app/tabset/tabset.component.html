@@ -1,0 +1,13 @@
+<div class="tabs is-boxed">
+  <ul>
+    <li *ngFor="let tab of tabs" [class.is-active]="tab === selectedTab">
+      <a>
+        <span (click)="selectTab(tab)">{{tab.header}}</span>
+        &nbsp;
+        <span (click)="removeTab(tab)"><strong>X</strong></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<app-tab *ngIf="selectedTab" [header]="selectedTab.header">{{selectedTab.text}}</app-tab>

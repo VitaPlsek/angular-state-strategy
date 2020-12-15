@@ -1,0 +1,189 @@
+h4 Spusťte Angular CLI
+p.
+  Následujícím příkazem spustíte aplikaci cvičení:
+
+snippet.
+  npm start
+
+p.
+  Po spuštění poběží aplikace na adrese #[a(href="http://localhost:4200", target="_blank") localhost:4200].
+
+h3 Popis cvičení
+
+p.
+  V tomto cvičení budeme implementovat komponenty představující taby, využijeme k tomu metod životního cyklu a možnost injektnout rodičovskou komponentu.
+  Také si vyzkoušíte vazbu komponenty na vlastnosti jejího elementu. Budeme se také vázat na globální událost a umožníme tak výběr tabu z klávesnice.
+
+h3 1 - Vazba mezi komponentami tab a tabset
+
+p.
+  Podívejte se na aktuální stav aplikace, je zde vidět jeden pevný tab a dva dynamické, které můžete přidávat a také odstraňovat.
+
+ul.task
+  li prohlédněte si šablonu #[em app.component.html]
+    ul
+      li uvidíte zde použitou komponentu #[strong app-tabset] a pod ní komponenty #[strong app-tab]
+ul.task
+  li prohlédněte si šablony komponent #[em tab.component.html] a #[em tabset.component.html]
+    ul
+      li všimněte si kolekce iterace přes kolekci #[strong tabs]
+ul.task
+  li letmo si prohlédněte #[strong tabset.component.ts]
+      ul
+        li je zde připravena metody pro přidání (#[strong add]), odstranění (#[strong remove]), výběru tabu a základ pro výběr klávesou
+
+h4 1.1 - injektněte nadřazenou komponentu
+
+p.
+  Komponenta #[strong TabComponent] bude komunikovat s nadřazenou #[strong TabsetComponent] musíme ji tedy získat.
+
+ul.task
+  li injektněte do construktoru komponentu #[strong TabsetComponent]
+
+hint Uděláte to stejně, jako když injektujete službu
+
+solution
+  :highlight-ts
+    export class TabComponent {
+      constructor(private tabset: TabsetComponent) { }
+
+      ...
+    }
+
+h4 1.2 - použijte metody životního cyklu
+
+p.
+  TabComponent bude volat metody pro přidání a odstranění tabu z komponenty #[strong TabsetComponent]. Aby k volání došlo ve správný okamžik, využijeme metody životního cyklu.
+
+ul.task
+  li přidejte komponentě #[strong TabComponent] správná rozhraní, abyste mohli reagovat na přidání a odstranění komponenty z DOMu.
+
+  li volejte zde metody injektnuté #[strong TabsetComponenty] #[strong add] a #[strong remove] a předejte aktuální instanci komponenty.
+
+hint Jedná se o rozhraní #[strong OnInit] a #[strong OnDestroy]
+
+solution
+  :highlight-ts
+    export class TabComponent implements OnInit, OnDestroy{
+
+      ...
+
+      ngOnInit() {
+        this.tabset.add(this);
+      }
+
+      ngOnDestroy() {
+        this.tabset.remove(this);
+      }
+    }
+
+ul.task
+  li vyzkoušejte, že se nyní zobrazují tlačítka s názvy všech tabů a že reagují také na přítomnost dynamických tabů
+    ul
+      li přepínání bude tlačítka zvýrazňovat, nedochází ale zatím ke skrývání neaktivních tabů
+
+h3 2 - Vazba komponenty na vlastnosti elementu
+
+p.
+  Pro skrytí neaktivního tabu můžeme využít atribut #[strong hidden], jejíž přítomnost zaručí skrytí elementu.
+
+ul
+  li vlastnost hidden je v komponentě #[strong TabComponent] již přítomna včetně obslužných metod.
+
+h4 2.1 - navažte vlastnost na atribut hidden
+ul.task
+  li navažte vlastnost #[strong hidden] na stejně pojmenovaný atribut elementu
+
+hint Použijte dekorátor #[strong @HostBinding()]
+
+solution
+  :highlight-ts
+    @HostBinding() hidden = true;
+
+ul
+  li nyní jsou iniciálně všechny taby skryté a pomocí tlačítek je již možné je zobrazit
+
+h3 3 - Reference na elementy v šabloně
+
+p.
+  Některý z tabů by měl být iniciálně vybrán. Může to být ten první, nebo ten, který určíme v šabloně.
+
+h4 3.1 - označte tab referencí v šabloně
+
+ul.task
+  li podívejte se do šablony #[em app.component.html]
+    ul
+      li mimo dynamických tabů zde je přítomen ještě jeden pevný s názvem #[strong Default tab]
+  li označte tento tab referencí #[strong selectedTab]
+
+hint k pojmenování se používá znak #[strong #]
+
+solution
+  :highlight-html
+    <app-tab header="Default tab" #selectedTab>
+
+h4 3.2 - získejte tab, který má být vybrán
+ul.task
+  li v #[strong TabsetComponent] získejte tento tab pomocí dekorátoru pro získání potomka z obsahu content projection
+  li získaný potomek bude typu #[strong TabComponent]
+  li pro získání použijte identifikátor #[strong selectedTab]
+
+hint Jde o dekorátor #[strong @ContentChild(identifier)].
+
+solution
+  :highlight-ts
+    @ContentChild('selectedTab') selectedTab: TabComponent;
+
+h4 3.3 - zobrazte vybraný tab
+ul.task
+  li vyberte tab voláním metody #[strong selectTab]
+  li volání proveďte v metodě životního cyklu, která se spustí po inicializaci obsahu content projection
+  li přidejte komponentě také správné rozhraní
+
+hint Použijte rozhraní #[strong AfterContentInit]
+
+solution
+  :highlight-ts
+    export class TabsetComponent implements AfterContentInit{
+
+      ...
+
+      ngAfterContentInit() {
+        this.selectTab(this.selectedTab);
+      }
+
+ul.task
+  li vyzkoušejte, že je tab opravdu vybraný
+
+h3 4 - Poslech události
+
+p.
+  Přepínání tabů už funguje podle očekávání, pro větší komfort ještě umožníme ovládat je číselnými klávesami.
+
+ul
+  li událost obsluhy klávesnice vrací kód Digit0 - Digit9 nezávisle na lokalizaci uživatele, tohoto využijeme.
+
+h4 4.1 - reagujte na stisk klávesy
+ul.task
+  li podívejte se na metodu #[strong onKey] komponenty #[strong TabsetComponent]
+    ul
+      li obsahuje již obsluhu stisku a očekává, že dostane událost stisku klávesy
+
+ul.task
+  li dekorujte metodu #[strong onKey], má být spuštěna pro událost #[strong document:keyup]
+  li jako parametr posílejte metodě událost #[strong $event]
+
+hint Pro poslech události slouží dekorátor #[strong @HostListener('událost', [výčet požadovaných parametrů])].
+  br
+  | Celou událost získáte jako #[strong $event]
+
+solution
+  :highlight-ts
+    @HostListener('document:keyup', ['$event'])
+    onKey(event: KeyboardEvent) {
+
+    }
+
+h3 5 - Vyzkoušejte celou aplikaci
+.success Výborně, provázali jste dvě komponenty tak aby mohli mezi sebou komunikovat a pověsili jste na ně vlastnosti a obsluhu událostí.
+

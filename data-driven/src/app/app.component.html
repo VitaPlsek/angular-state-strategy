@@ -1,0 +1,11 @@
+<app-tabset *ngIf="dynamicTabs.length"
+            [tabs]="dynamicTabs"
+            [(selectedTab)]="selectedTab"
+            (tabRemoved)="removeTab($event)"
+>
+</app-tabset>
+<hr/>
+
+<a class="button is-info" (click)="addTab()">Add dynamic tab</a>
+
+
