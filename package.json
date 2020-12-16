@@ -1,0 +1,21 @@
+{
+  "name": "angular2-state",
+  "version": "1.0.0",
+  "description": "Demo for Angular training (angular.cz)",
+  "scripts": {
+    "install-01": "cd 01-template-driven && yarn install",
+    "install-02": "cd 02-data-driven && yarn install",
+    "install-03": "cd 03-rxjs && yarn install",
+    "install-04": "cd 04-ngrx && yarn install",
+    "start": "node index.js",
+    "postinstall": "npm run install-01 && npm run install-02 && npm run install-03 && npm run install-04"
+  },
+  "keywords": [
+    "angular",
+    "training",
+    "exrcises"
+  ],
+  "dependencies": {
+    "bulma": "^0.3.1"
+  }
+}

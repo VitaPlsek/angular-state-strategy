@@ -120,5 +120,8 @@
       }
     }
   },
-  "defaultProject": "exercise"
+  "defaultProject": "exercise",
+  "cli": {
+    "analytics": false
+  }
 }
